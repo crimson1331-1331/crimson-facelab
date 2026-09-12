@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+
+data/photos/*
+data/videos/*
+
+app_backup.py
+index_backup.html
+
+.env

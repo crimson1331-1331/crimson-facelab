@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Crimson Face Lab
+</title>
+
+
+<style>
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+
+:root {
+
+    --red: #ff003c;
+
+    --red-dark: #8b001f;
+
+    --bg: #050507;
+
+    --panel: #0d0d12;
+
+    --panel2: #13131a;
+
+    --text: #eeeeee;
+
+    --muted: #777777;
+
+    --green: #32ff7e;
+
+}
+
+
+body {
+
+    margin: 0;
+
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #26000d 0%,
+            #09090d 35%,
+            #050507 75%
+        );
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.header {
+
+    padding:
+        25px 7%;
+
+    border-bottom:
+        1px solid
+        rgba(255, 0, 60, 0.25);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    background:
+        rgba(5, 5, 7, 0.85);
+
+    backdrop-filter:
+        blur(15px);
+}
+
+
+.logo {
+
+    color: var(--red);
+
+    font-weight: 900;
+
+    letter-spacing: 4px;
+
+    font-size: 22px;
+}
+
+
+.developer {
+
+    color: #666;
+
+    font-size: 13px;
+}
+
+
+.developer span {
+
+    color: var(--red);
+}
+
+
+/* =========================================================
+   DISCLAIMER
+   ========================================================= */
+
+.disclaimer {
+
+    width: 90%;
+
+    max-width: 1200px;
+
+    margin:
+        22px auto 0;
+
+    display: flex;
+
+    gap: 15px;
+
+    align-items:
+        flex-start;
+
+    padding:
+        18px 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 0, 60, 0.08),
+            rgba(255,255,255,0.02)
+        );
+
+    border:
+        1px solid
+        rgba(255,0,60,0.25);
+
+    border-radius: 14px;
+}
+
+
+.disclaimer-icon {
+
+    color: var(--red);
+
+    font-size: 23px;
+
+    font-weight: 900;
+}
+
+
+.disclaimer strong {
+
+    display: block;
+
+    color: var(--red);
+
+    font-size: 12px;
+
+    letter-spacing: 1.5px;
+
+    margin-bottom: 7px;
+}
+
+
+.disclaimer p {
+
+    margin: 0;
+
+    color: #777;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.container {
+
+    width: 90%;
+
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding:
+        40px 0 80px;
+}
+
+
+.hero {
+
+    text-align: center;
+
+    margin-bottom: 35px;
+}
+
+
+.hero h1 {
+
+    font-size:
+        clamp(
+            35px,
+            6vw,
+            70px
+        );
+
+    margin: 0;
+
+    font-weight: 900;
+
+    letter-spacing: -3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff003c,
+            #ff5577,
+            #ff003c
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+}
+
+
+.hero p {
+
+    color: #777;
+
+    margin-top: 12px;
+}
+
+
+/* =========================================================
+   CAMERA
+   ========================================================= */
+
+.camera-wrapper {
+
+    position: relative;
+
+    background: #000;
+
+    border:
+        1px solid
+        rgba(255,0,60,0.35);
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 0 60px
+        rgba(255,0,60,0.12);
+}
+
+
+.camera-wrapper img {
+
+    width: 100%;
+
+    display: block;
+}
+
+
+/* =========================================================
+   LIVE BADGE
+   ========================================================= */
+
+.live {
+
+    position: absolute;
+
+    top: 18px;
+
+    left: 18px;
+
+    z-index: 5;
+
+    background:
+        rgba(0,0,0,0.80);
+
+    border:
+        1px solid
+        rgba(255,0,60,0.5);
+
+    padding:
+        9px 14px;
+
+    border-radius: 30px;
+
+    font-size: 12px;
+
+    color: var(--red);
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+
+.dot {
+
+    display: inline-block;
+
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: var(--red);
+
+    margin-right: 7px;
+
+    animation:
+        blink 1s infinite;
+}
+
+
+@keyframes blink {
+
+    50% {
+        opacity: 0.25;
+    }
+
+}
+
+
+/* =========================================================
+   RECORDING BADGE
+   ========================================================= */
+
+.recording {
+
+    position: absolute;
+
+    top: 18px;
+
+    right: 18px;
+
+    z-index: 5;
+
+    background:
+        rgba(0,0,0,0.80);
+
+    border:
+        1px solid
+        rgba(50,255,126,0.45);
+
+    padding:
+        9px 14px;
+
+    border-radius: 30px;
+
+    font-size: 12px;
+
+    color: var(--green);
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+}
+
+
+.record-dot {
+
+    display: inline-block;
+
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    margin-right: 7px;
+
+    animation:
+        blink 0.8s infinite;
+}
+
+
+/* =========================================================
+   PANELS
+   ========================================================= */
+
+.panel {
+
+    margin-top: 22px;
+
+    padding: 25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #13131a,
+            #0a0a0e
+        );
+
+    border:
+        1px solid
+        rgba(255,255,255,0.06);
+
+    border-radius: 18px;
+}
+
+
+.panel-title {
+
+    font-size: 13px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 2px;
+
+    color: #666;
+
+    margin-bottom: 14px;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    color: #aaa;
+
+    font-size: 14px;
+}
+
+
+.status-indicator {
+
+    width: 10px;
+
+    height: 10px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 15px
+        rgba(50,255,126,0.7);
+
+    animation:
+        blink 1s infinite;
+}
+
+
+/* =========================================================
+   STATS
+   ========================================================= */
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                180px,
+                1fr
+            )
+        );
+
+    gap: 15px;
+
+    margin-top: 22px;
+}
+
+
+.stat {
+
+    background:
+        rgba(255,255,255,0.025);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.06);
+
+    border-radius: 15px;
+
+    padding: 20px;
+}
+
+
+.stat-number {
+
+    font-size: 30px;
+
+    color: var(--red);
+
+    font-weight: 900;
+}
+
+
+.stat-label {
+
+    color: #666;
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   INFORMATION CARDS
+   ========================================================= */
+
+.info-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                220px,
+                1fr
+            )
+        );
+
+    gap: 15px;
+
+    margin-top: 22px;
+}
+
+
+.info-card {
+
+    background:
+        var(--panel);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.06);
+
+    border-radius: 14px;
+
+    padding: 20px;
+}
+
+
+.info-card h3 {
+
+    margin:
+        0 0 8px;
+
+    color: #ddd;
+}
+
+
+.info-card p {
+
+    margin: 0;
+
+    color: #666;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+
+    text-align: center;
+
+    padding: 30px;
+
+    color: #444;
+
+    font-size: 12px;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,0.05);
+}
+
+
+footer span {
+
+    color: var(--red);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width:700px) {
+
+    .header {
+
+        padding:
+            20px 5%;
+
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =======================================================
+     HEADER
+     ======================================================= -->
+
+<header class="header">
+
+    <div class="logo">
+
+        CRIMSON // FACE LAB
+
+    </div>
+
+
+    <div class="developer">
+
+        developed by
+        <span>
+            {{ developer }}
+        </span>
+
+    </div>
+
+</header>
+
+
+<!-- =======================================================
+     DISCLAIMER
+     ======================================================= -->
+
+<div class="disclaimer">
+
+    <div class="disclaimer-icon">
+
+        ⚠
+
+    </div>
+
+
+    <div>
+
+        <strong>
+            EDUCATIONAL / RESEARCH USE ONLY
+        </strong>
+
+
+        <p>
+
+            Crimson Face Lab is intended for
+            authorized educational, testing,
+            and research purposes. Use only
+            with appropriate authorization
+            and consent. The developer does
+            not endorse or encourage
+            unauthorized use or misuse.
+
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     MAIN
+     ======================================================= -->
+
+<main class="container">
+
+
+    <section class="hero">
+
+        <h1>
+
+            FACE LAB
+
+        </h1>
+
+
+        <p>
+
+            Live vision • Automatic capture •
+            Continuous recording
+
+        </p>
+
+    </section>
+
+
+    <!-- ===================================================
+         CAMERA
+         =================================================== -->
+
+    <section class="camera-wrapper">
+
+
+        <div class="live">
+
+            <span class="dot"></span>
+
+            LIVE CAMERA
+
+        </div>
+
+
+        <div class="recording">
+
+            <span class="record-dot"></span>
+
+            AUTO RECORDING
+
+        </div>
+
+
+        <img
+            src="{{ url_for('video_feed') }}"
+            alt="Crimson Face Lab live camera"
+        >
+
+
+    </section>
+
+
+    <!-- ===================================================
+         STATUS
+         =================================================== -->
+
+    <section class="panel">
+
+        <div class="panel-title">
+
+            System Status
+
+        </div>
+
+
+        <div class="status">
+
+            <span
+                class="status-indicator"
+                id="statusIndicator"
+            ></span>
+
+
+            <span id="systemStatus">
+
+                Connecting to Crimson Core...
+
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         STATISTICS
+         =================================================== -->
+
+    <section class="stats">
+
+
+        <div class="stat">
+
+            <div
+                class="stat-number"
+                id="photoCount"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+
+                Photos captured
+
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div
+                class="stat-number"
+                id="videoCount"
+            >
+                0
+            </div>
+
+            <div class="stat-label">
+
+                Videos stored
+
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div
+                class="stat-number"
+                id="recordingStatus"
+            >
+                OFF
+            </div>
+
+            <div class="stat-label">
+
+                Recording
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- ===================================================
+         INFORMATION
+         =================================================== -->
+
+    <section class="info-grid">
+
+
+        <div class="info-card">
+
+            <h3>
+
+                Automatic Photos
+
+            </h3>
+
+
+            <p>
+
+                Photos are captured
+                automatically at a fixed
+                interval while the authorized
+                local web session is active.
+
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <h3>
+
+                Continuous Video
+
+            </h3>
+
+
+            <p>
+
+                The Python/OpenCV backend
+                continuously records the
+                webcam stream locally.
+
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <h3>
+
+                Face Detection
+
+            </h3>
+
+
+            <p>
+
+                OpenCV automatically detects
+                faces and highlights them
+                in the live feed.
+
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <h3>
+
+                Local Storage
+
+            </h3>
+
+
+            <p>
+
+                Captured images and videos
+                are stored locally in the
+                Crimson Face Lab data folder.
+
+            </p>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+<!-- =======================================================
+     FOOTER
+     ======================================================= -->
+
+<footer>
+
+    CRIMSON FACE LAB
+
+    <br>
+
+    <span>
+        developed by {{ developer }}
+    </span>
+
+    • v{{ version }}
+
+    <br><br>
+
+    Educational and research use only.
+    Use only with appropriate authorization
+    and consent.
+
+</footer>
+
+
+<script>
+
+/* =========================================================
+   CRIMSON SESSION
+   ========================================================= */
+
+let heartbeatTimer = null;
+
+let sessionStarted = false;
+
+
+/* =========================================================
+   START SESSION
+   ========================================================= */
+
+async function startSession() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/session/start",
+                {
+                    method: "POST"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (data.success) {
+
+            sessionStarted = true;
+
+
+            document.getElementById(
+                "systemStatus"
+            ).innerText =
+                "Camera active — automatic recording enabled";
+
+
+            document.getElementById(
+                "recordingStatus"
+            ).innerText =
+                "ON";
+
+
+            startHeartbeat();
+
+        }
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Session error:",
+            error
+        );
+
+
+        document.getElementById(
+            "systemStatus"
+        ).innerText =
+            "Unable to connect to Crimson Core";
+
+    }
+
+}
+
+
+/* =========================================================
+   HEARTBEAT
+   ========================================================= */
+
+function startHeartbeat() {
+
+    if (heartbeatTimer !== null) {
+
+        clearInterval(
+            heartbeatTimer
+        );
+
+    }
+
+
+    heartbeatTimer =
+        setInterval(
+            async function() {
+
+                try {
+
+                    await fetch(
+                        "/session/heartbeat",
+                        {
+                            method: "POST"
+                        }
+                    );
+
+                }
+
+                catch(error) {
+
+                    console.error(
+                        "Heartbeat error:",
+                        error
+                    );
+
+                }
+
+            },
+            2000
+        );
+
+}
+
+
+/* =========================================================
+   STOP SESSION
+   ========================================================= */
+
+function stopSession() {
+
+    if (!sessionStarted) {
+        return;
+    }
+
+
+    try {
+
+        navigator.sendBeacon(
+            "/session/stop"
+        );
+
+    }
+
+    catch(error) {
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PAGE CLOSE
+   ========================================================= */
+
+window.addEventListener(
+    "pagehide",
+    stopSession
+);
+
+
+/* =========================================================
+   STATISTICS
+   ========================================================= */
+
+async function loadStats() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/stats"
+            );
+
+
+        const data =
+            await response.json();
+
+
+        document.getElementById(
+            "photoCount"
+        ).innerText =
+            data.photos;
+
+
+        document.getElementById(
+            "videoCount"
+        ).innerText =
+            data.videos;
+
+
+        if (data.recording) {
+
+            document.getElementById(
+                "recordingStatus"
+            ).innerText =
+                "ON";
+
+
+            document.getElementById(
+                "systemStatus"
+            ).innerText =
+                "Camera active — automatic recording enabled";
+
+        }
+
+        else {
+
+            document.getElementById(
+                "recordingStatus"
+            ).innerText =
+                "OFF";
+
+        }
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Stats error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
+
+startSession();
+
+loadStats();
+
+
+setInterval(
+    loadStats,
+    2000
+);
+
+</script>
+
+
+</body>
+
+</html>

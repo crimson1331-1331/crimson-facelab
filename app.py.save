@@ -1,0 +1,657 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import sys
+import time
+import signal
+import cv2
+
+from flask import Flask, render_template, Response, request, jsonify
+
+
+# ============================================================
+# CRIMSON FACE LAB
+# Developed by crimson1331
+# ============================================================
+
+APP_NAME = "CRIMSON FACE LAB"
+VERSION = "1.0.0"
+DEVELOPER = "crimson1331"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+
+HOST = "127.0.0.1"
+PORT = 5000
+
+os.makedirs(DATA_DIR, exist_ok=True)
+
+
+# ============================================================
+# ANSI COLORS
+# ============================================================
+
+RESET = "\033[0m"
+
+RED = "\033[91m"
+CRIMSON = "\033[38;5;196m"
+DARK_RED = "\033[38;5;124m"
+WHITE = "\033[97m"
+GRAY = "\033[90m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+CYAN = "\033[96m"
+MAGENTA = "\033[95m"
+BLUE = "\033[94m"
+
+
+def clear_screen():
+    os.system("clear")
+
+
+def slow_print(text, delay=0.002):
+    for char in text:
+        print(char, end="", flush=True)
+        time.sleep(delay)
+    print()
+
+
+def progress_bar(length=35, delay=0.025):
+
+    print()
+
+    for i in range(length + 1):
+
+        percent = int((i / length) * 100)
+
+        bar = "█" * i + "░" * (length - i)
+
+        print(
+            f"\r{CRIMSON}[{bar}] {percent:3d}%{RESET}",
+            end="",
+            flush=True
+        )
+
+        time.sleep(delay)
+
+    print("\n")
+
+
+def banner():
+
+    print(f"{CRIMSON}")
+    print(r"""
+                  ██████╗██████╗ ██╗███╗   ███╗███████╗ ██████╗ ███╗   ██╗
+                 ██╔════╝██╔══██╗██║████╗ ████║██╔════╝██╔═══██╗████╗  ██║
+                 ██║     ██████╔╝██║██╔████╔██║███████╗██║   ██║██╔██╗ ██║
+                 ██║     ██╔══██╗██║██║╚██╔╝██║╚════██║██║   ██║██║╚██╗██║
+                 ╚██████╗██║  ██║██║██║ ╚═╝ ██║███████║╚██████╔╝██║ ╚████║
+                  ╚═════╝╚═╝  ╚═╝╚═╝╚═╝     ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
+
+                         F A C E   L A B
+                    ─────────────────────────
+""")
+    print(f"{WHITE}                         developed by{RESET}")
+    print(f"{CRIMSON}                            {DEVELOPER}{RESET}")
+    print()
+
+
+def boot():
+
+    clear_screen()
+    banner()
+
+    messages = [
+        ("Initializing Crimson Core", CRIMSON),
+        ("Loading computer vision engine", CYAN),
+        ("Loading face detection module", MAGENTA),
+        ("Checking dataset directory", YELLOW),
+        ("Initializing webcam interface", GREEN),
+        ("Preparing Flask web server", BLUE),
+    ]
+
+    for message, color in messages:
+
+        print(
+            f"{GRAY}[BOOT]{RESET} "
+            f"{color}{message}{RESET} ... ",
+            end="",
+            flush=True
+        )
+
+        time.sleep(0.45)
+
+        print(f"{GREEN}OK{RESET}")
+
+    progress_bar()
+
+    print(
+        f"{GREEN}[SYSTEM] Crimson Face Lab initialized successfully.{RESET}"
+    )
+
+    print(
+        f"{GRAY}[SYSTEM] Developer: {WHITE}{DEVELOPER}{RESET}"
+    )
+
+    print(
+        f"{GRAY}[SYSTEM] Version:  {WHITE}{VERSION}{RESET}"
+    )
+
+    print()
+
+
+# ============================================================
+# FLASK
+# ============================================================
+
+app = Flask(__name__)
+
+
+# ============================================================
+# CAMERA
+# ============================================================
+
+camera = None
+
+
+def initialize_camera():
+
+    global camera
+
+    print(
+        f"{CYAN}[CAMERA]{RESET} Searching for webcam..."
+    )
+
+    camera = cv2.VideoCapture(0)
+
+    if not camera.isOpened():
+
+        print(
+            f"{RED}[ERROR]{RESET} Could not access /dev/video0"
+        )
+
+        print(
+            f"{YELLOW}[TIP]{RESET} Check your webcam with:"
+        )
+
+        print(
+            f"      {WHITE}ls /dev/video*{RESET}"
+        )
+
+        return False
+
+    # Try to set reasonable resolution
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
+    print(
+        f"{GREEN}[CAMERA]{RESET} Webcam initialized."
+    )
+
+    return True
+
+
+# ============================================================
+# FACE DETECTOR
+# ============================================================
+
+cascade_path = cv2.data.haarcascades + \
+    "haarcascade_frontalface_default.xml"
+
+face_detector = cv2.CascadeClassifier(cascade_path)
+
+
+# ============================================================
+# FACE DETECTION
+# ============================================================
+
+def detect_faces(frame):
+
+    gray = cv2.cvtColor(
+        frame,
+        cv2.COLOR_BGR2GRAY
+    )
+
+    faces = face_detector.detectMultiScale(
+        gray,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(80, 80)
+    )
+
+    return faces
+
+
+# ============================================================
+# LIVE CAMERA STREAM
+# ============================================================
+
+def generate_frames():
+
+    global camera
+
+    while True:
+
+        if camera is None:
+            break
+
+        success, frame = camera.read()
+
+        if not success:
+            break
+
+        # Mirror webcam
+        frame = cv2.flip(frame, 1)
+
+        faces = detect_faces(frame)
+
+        # Draw detected faces
+        for x, y, w, h in faces:
+
+            cv2.rectangle(
+                frame,
+                (x, y),
+                (x + w, y + h),
+                (0, 0, 255),
+                3
+            )
+
+            cv2.putText(
+                frame,
+                "FACE DETECTED",
+                (x, max(30, y - 12)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (0, 0, 255),
+                2
+            )
+
+        # Information overlay
+        cv2.putText(
+            frame,
+            "CRIMSON FACE LAB",
+            (20, 40),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.9,
+            (0, 0, 255),
+            2
+        )
+
+        cv2.putText(
+            frame,
+            f"Faces: {len(faces)}",
+            (20, 75),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (255, 255, 255),
+            2
+        )
+
+        ret, buffer = cv2.imencode(
+            ".jpg",
+            frame
+        )
+
+        if not ret:
+            continue
+
+        frame_bytes = buffer.tobytes()
+
+        yield (
+            b"--frame\r\n"
+            b"Content-Type: image/jpeg\r\n\r\n"
+            + frame_bytes
+            + b"\r\n"
+        )
+
+
+# ============================================================
+# LABEL SANITIZATION
+# ============================================================
+
+def sanitize_label(label):
+
+    label = label.strip().lower()
+
+    # Only allow letters, numbers, underscore and hyphen
+    label = re.sub(
+        r"[^a-zA-Z0-9_-]",
+        "_",
+        label
+    )
+
+    # Prevent empty labels
+    if not label:
+        return None
+
+    return label[:50]
+
+
+# ============================================================
+# HOME
+# ============================================================
+
+@app.route("/")
+def index():
+
+    labels = []
+
+    for item in os.listdir(DATA_DIR):
+
+        path = os.path.join(
+            DATA_DIR,
+            item
+        )
+
+        if os.path.isdir(path):
+            labels.append(item)
+
+    labels.sort()
+
+    return render_template(
+        "index.html",
+        labels=labels,
+        developer=DEVELOPER,
+        version=VERSION
+    )
+
+
+# ============================================================
+# LIVE FEED
+# ============================================================
+
+@app.route("/video_feed")
+def video_feed():
+
+    return Response(
+        generate_frames(),
+        mimetype="multipart/x-mixed-replace; boundary=frame"
+    )
+
+
+# ============================================================
+# CAPTURE IMAGE
+# ============================================================
+
+@app.route("/capture", methods=["POST"])
+def capture():
+
+    global camera
+
+    label = request.form.get(
+        "label",
+        ""
+    )
+
+    label = sanitize_label(label)
+
+    if label is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid label."
+        }), 400
+
+    if camera is None:
+
+        return jsonify({
+            "success": False,
+            "message": "Camera is not available."
+        }), 500
+
+    success, frame = camera.read()
+
+    if not success:
+
+        return jsonify({
+            "success": False,
+            "message": "Could not read webcam."
+        }), 500
+
+    # Mirror
+    frame = cv2.flip(frame, 1)
+
+    faces = detect_faces(frame)
+
+    if len(faces) == 0:
+
+        return jsonify({
+            "success": False,
+            "message": "No face detected."
+        })
+
+    # Pick largest face
+    faces = sorted(
+        faces,
+        key=lambda face: face[2] * face[3],
+        reverse=True
+    )
+
+    x, y, w, h = faces[0]
+
+    # Padding
+    padding = int(w * 0.30)
+
+    x1 = max(
+        0,
+        x - padding
+    )
+
+    y1 = max(
+        0,
+        y - padding
+    )
+
+    x2 = min(
+        frame.shape[1],
+        x + w + padding
+    )
+
+    y2 = min(
+        frame.shape[0],
+        y + h + padding
+    )
+
+    face_image = frame[
+        y1:y2,
+        x1:x2
+    ]
+
+    if face_image.size == 0:
+
+        return jsonify({
+            "success": False,
+            "message": "Could not crop face."
+        })
+
+    # Create dataset folder
+    label_folder = os.path.join(
+        DATA_DIR,
+        label
+    )
+
+    os.makedirs(
+        label_folder,
+        exist_ok=True
+    )
+
+    # Find next number
+    existing = [
+        f
+        for f in os.listdir(label_folder)
+        if f.lower().endswith(".jpg")
+    ]
+
+    image_number = len(existing) + 1
+
+    filename = (
+        f"{label}_{image_number:05d}.jpg"
+    )
+
+    filepath = os.path.join(
+        label_folder,
+        filename
+    )
+
+    saved = cv2.imwrite(
+        filepath,
+        face_image
+    )
+
+    if not saved:
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to save image."
+        }), 500
+
+    return jsonify({
+        "success": True,
+        "message": f"Captured {filename}",
+        "label": label,
+        "filename": filename
+    })
+
+
+# ============================================================
+# DATASET STATISTICS
+# ============================================================
+
+@app.route("/stats")
+def stats():
+
+    result = {}
+
+    total = 0
+
+    for label in os.listdir(DATA_DIR):
+
+        folder = os.path.join(
+            DATA_DIR,
+            label
+        )
+
+        if not os.path.isdir(folder):
+            continue
+
+        count = len([
+            f
+            for f in os.listdir(folder)
+            if f.lower().endswith(
+                (".jpg", ".jpeg", ".png")
+            )
+        ])
+
+        result[label] = count
+
+        total += count
+
+    return jsonify({
+        "labels": result,
+        "total": total
+    })
+
+
+# ============================================================
+# SHUTDOWN
+# ============================================================
+
+def shutdown():
+
+    global camera
+
+    print()
+
+    print(
+        f"{YELLOW}[SYSTEM]{RESET} Shutting down..."
+    )
+
+    if camera is not None:
+        camera.release()
+
+    print(
+        f"{GREEN}[SYSTEM]{RESET} Camera released."
+    )
+
+    print(
+        f"{CRIMSON}[CRIMSON]{RESET} Goodbye."
+    )
+
+
+def signal_handler(
+    sig,
+    frame
+):
+
+    shutdown()
+    sys.exit(0)
+
+
+signal.signal(
+    signal.SIGINT,
+    signal_handler
+)
+
+signal.signal(
+    signal.SIGTERM,
+    signal_handler
+)
+
+
+# ============================================================
+# MAIN
+# ============================================================
+
+if __name__ == "__main__":
+
+    boot()
+
+    if not initialize_camera():
+
+        print(
+            f"{RED}[FATAL]{RESET} Camera initialization failed."
+        )
+
+        print(
+            f"{YELLOW}You can still inspect the project, "
+            f"but the live feed requires a webcam.{RESET}"
+        )
+
+        sys.exit(1)
+
+    print()
+
+    print(
+        f"{CRIMSON}╔══════════════════════════════════════════════╗{RESET}"
+    )
+
+    print(
+        f"{CRIMSON}║{WHITE}          CRIMSON FACE LAB ONLINE          "
+        f"{CRIMSON}║{RESET}"
+    )
+
+    print(
+        f"{CRIMSON}╠══════════════════════════════════════════════╣{RESET}"
+    )
+
+    print(
+        f"{CRIMSON}║{RESET} Local URL : "
+        f"{CYAN}http://{HOST}:{PORT}{RESET}"
+        f"          {CRIMSON}║{RESET}"
+    )
+
+    print(
+        f"{CRIMSON}║{RESET} Dataset   : "
+        f"{YELLOW}{DATA_DIR}{RESET}"
+        f" {CRIMSON}║{RESET}"
+    )
+
+    print(
+        f"{CRIMSON}║{RESET} Developer : "
+        f"{MAGENTA}{DEVELOPER}{RESET}"
+        f"                    {CRIMSON}║{RESET}"
+    )
+
+    print(
+        f"{CRIMSON}╚═══════════════════════════
